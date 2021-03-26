@@ -1,4 +1,5 @@
 import json
+import sys
 from flask import request, _request_ctx_stack
 from functools import wraps
 from jose import jwt
@@ -36,13 +37,11 @@ class AuthError(Exception):
 
 def get_token_auth_header():
     auth = request.headers.get('Authorization', None)
-
     if not auth:
-        raise({
+        raise AuthError({
             'code': 'authorization_header_missing',
             'description': 'Authorization header is expected.'
         }, 401)
-
     auto_splited = auth.split()
     if auto_splited[0].lower() != 'bearer':
         raise AuthError({
@@ -61,7 +60,6 @@ def get_token_auth_header():
             'code': 'invalid_header',
             'description': 'Authorization header must be bearer token.'
         }, 401)
-
     token = auto_splited[1]
     return token
 
@@ -83,14 +81,11 @@ def check_permissions(permission, payload):
     if 'permissions' not in payload:
         raise AuthError({
             'code': 'invalid_claims',
-            'description': 'Permissions not included in JWT.'
+            'description': 'Permissions not found'
         }, 400)
-    
     if permission not in payload['permissions']:
-        raise AuthError({
-            'code': 'unauthorized',
-            'description': 'Permission not found.'
-        }, 403)
+        raise AuthError({'code': 'unauthorized',
+                         'description': 'Permission not found.'}, 401)
     return True
 
 
@@ -117,7 +112,6 @@ def verify_decode_jwt(token):
             'code': 'invalid_header',
             'description': 'Authorization malformed.'
         }, 401)
-
     for key in jwks['keys']:
         if key['kid'] == unverified_header['kid']:
             rsa_key = {
@@ -181,6 +175,5 @@ def requires_auth(permission=''):
             payload = verify_decode_jwt(token)
             check_permissions(permission, payload)
             return f(payload, *args, **kwargs)
-
         return wrapper
     return requires_auth_decorator

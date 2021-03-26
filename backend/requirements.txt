@@ -23,7 +23,7 @@
 astroid
 Click
 ecdsa
-Flask
+Flask==1.0.2
 Flask-SQLAlchemy
 future
 isort
@@ -38,6 +38,7 @@ python-jose-cryptodome
 six
 SQLAlchemy
 typed-ast
-Werkzeug
 wrapt
-Flask-Cors
+Flask-Cors==3.0.8
+Werkzeug==0.15.5
+
