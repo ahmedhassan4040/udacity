@@ -92,7 +92,7 @@ def post_drinks(payload):
             "success": True,
             "drinks": drink.long()
         })
-    except:
+    except BaseException:
         print(sys.exc_info())
         abort(422)
 
@@ -120,11 +120,12 @@ def update_drinks(payload, itemId):
         drink.title = drink_json['title']
         drink.recipe = json.dumps(drink_json['recipe'])
         drink.update()
+        drinks=Drink.query.all()
         return jsonify({
             "success": True,
-            "drinks": drink.long()
+            "drinks": [drink.long() for drink in drinks]
         })
-    except:
+    except BaseException:
         print(sys.exc_info())
         abort(422)
 
@@ -154,7 +155,7 @@ def delete_drinks(payload, itemId):
             "success": True,
             "delete": itemId
         })
-    except:
+    except BaseException:
         print(sys.exc_info())
         abort(422)
 
